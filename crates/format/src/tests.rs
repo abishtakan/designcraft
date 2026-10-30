@@ -20,14 +20,75 @@ fn world_ready_composers_survive_native_save_and_reopen() {
         shortcut: String::new(),
     });
     let id = StoryId(doc.alloc());
-    let mut story = Story::with_text(id, "தமிழ்", ParaFormat::default());
-    story.paras[0].style = "Tamil".into();
-    story.paras[0].para.composer = Some(single);
+    let mut story = Story::with_text(id, "தமிழ்\nதமிழ்", ParaFormat::default());
+    for para in &mut story.paras {
+        para.style = "Tamil".into();
+    }
+    story.paras[1].para.composer = Some(single);
     doc.stories.insert(id, Arc::new(story));
 
     let reopened = load(&save(&doc).unwrap()).unwrap();
     assert_eq!(reopened.styles.para("Tamil").unwrap().para.composer, Some(paragraph));
-    assert_eq!(reopened.story(id).unwrap().paras[0].para.composer, Some(single));
+    let story = reopened.story(id).unwrap();
+    assert_eq!(story.paras[0].para.composer, None);
+    assert_eq!(story.paras[1].para.composer, Some(single));
+    assert_eq!(reopened.styles.resolve_para(&story.paras[0]).0.composer, paragraph);
+    assert_eq!(reopened.styles.resolve_para(&story.paras[1]).0.composer, single);
+}
+
+/// New enum values require the version-5 reader wherever they are serialized, including unused
+/// styles and nested text. Ordinary and Japanese composers retain their older file requirement.
+#[test]
+fn world_ready_content_requires_new_reader() {
+    use designcraft_doc::{Composer, StoryId, Table};
+
+    #[derive(Clone, Copy, Debug)]
+    enum Scope {
+        Style,
+        Story,
+        Cell,
+        Footnote,
+        Endnote,
+    }
+
+    for composer in [
+        Composer::Paragraph,
+        Composer::SingleLine,
+        Composer::Japanese,
+        Composer::JapaneseSingleLine,
+        Composer::WorldReady,
+        Composer::WorldReadySingleLine,
+    ] {
+        let expected = if matches!(composer, Composer::WorldReady | Composer::WorldReadySingleLine) { 5 } else { 2 };
+        for scope in [Scope::Style, Scope::Story, Scope::Cell, Scope::Footnote, Scope::Endnote] {
+            let mut doc = Document::new(&NewDocument::default());
+            let id = StoryId(doc.alloc());
+            let mut story = Story::with_text(id, "Root", ParaFormat::default());
+            let para = ParaFormat { para: ParaAttrs { composer: Some(composer), ..Default::default() }, ..Default::default() };
+            match scope {
+                Scope::Style => doc.styles_mut().paragraph[0].para.composer = Some(composer),
+                Scope::Story => story.paras[0] = para,
+                Scope::Cell => {
+                    let mut table = Table::new(1, 1, 1, 0, 0, 100.0);
+                    table.cells[0].text.paras[0] = para;
+                    story.insert_table(0, table);
+                }
+                Scope::Footnote => {
+                    story.insert_note(0, "Note", para).unwrap();
+                }
+                Scope::Endnote => {
+                    story.insert_endnote(0, "Note", para).unwrap();
+                }
+            }
+            doc.stories.insert(id, Arc::new(story));
+            let bytes = save(&doc).unwrap();
+            let mut zip = zip::ZipArchive::new(Cursor::new(&bytes)).unwrap();
+            let mut meta = String::new();
+            zip.by_name("meta.json").unwrap().read_to_string(&mut meta).unwrap();
+            assert_eq!(serde_json::from_str::<Value>(&meta).unwrap()["version"], expected, "{composer:?} in {scope:?}");
+            assert_eq!(required_version(&load(&bytes).unwrap()), expected as u32);
+        }
+    }
 }
 
 fn png_asset(d: &mut Document, data: &[u8]) -> AssetId {

@@ -44,6 +44,9 @@ keeps each selected paragraph's composer family, including mixed selections in t
 panel and Justification dialog. Synthetic regressions inspect the exported XML as well as
 reimporting it. This preserves the composer InDesign uses on reopening; DesignCraft continues
 to use its own shaping and line breaking, without Adobe's legacy shaping engine.
+Native files containing World-Ready composer values require the version-5 reader, so older apps
+show the update-required error before decoding them. Other files keep their existing version 2–4
+requirements.
 
 ## Output
 
