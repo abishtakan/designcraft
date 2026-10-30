@@ -5,6 +5,15 @@ use egui_kittest::{
 
 use super::*;
 
+#[test]
+fn composer_choice_retains_the_imported_family() {
+    for (paragraph, single) in [("paragraph", "singleLine"), ("japanese", "japaneseSingleLine"), ("worldReady", "worldReadySingleLine")] {
+        assert_eq!(composer_choice(Some(paragraph)), (false, [paragraph, single]));
+        assert_eq!(composer_choice(Some(single)), (true, [paragraph, single]));
+    }
+    assert_eq!(composer_choice(None), (false, ["paragraph", "singleLine"]));
+}
+
 /// A link to a panel whose flyout is open leaves the flyout open.
 #[test]
 fn a_panel_link_keeps_its_open_flyout() {

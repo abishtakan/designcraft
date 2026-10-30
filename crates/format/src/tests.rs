@@ -3,6 +3,32 @@ use designcraft_doc::build::NewDocument;
 use designcraft_doc::geom::Rect;
 use designcraft_doc::{Asset, ParaFormat, SpreadRef};
 
+#[test]
+fn world_ready_composers_survive_native_save_and_reopen() {
+    use designcraft_doc::{Composer, ParagraphStyle, Story, StoryId};
+
+    let mut doc = Document::new(&NewDocument::default());
+    let paragraph: Composer = serde_json::from_value(serde_json::json!("worldReady")).unwrap();
+    let single: Composer = serde_json::from_value(serde_json::json!("worldReadySingleLine")).unwrap();
+    doc.styles_mut().paragraph.push(ParagraphStyle {
+        name: "Tamil".into(),
+        based_on: Some(designcraft_doc::NO_PARA_STYLE.into()),
+        next_style: None,
+        para: ParaAttrs { composer: Some(paragraph), ..Default::default() },
+        chars: Default::default(),
+        shortcut: String::new(),
+    });
+    let id = StoryId(doc.alloc());
+    let mut story = Story::with_text(id, "தமிழ்", ParaFormat::default());
+    story.paras[0].style = "Tamil".into();
+    story.paras[0].para.composer = Some(single);
+    doc.stories.insert(id, Arc::new(story));
+
+    let reopened = load(&save(&doc).unwrap()).unwrap();
+    assert_eq!(reopened.styles.para("Tamil").unwrap().para.composer, Some(paragraph));
+    assert_eq!(reopened.story(id).unwrap().paras[0].para.composer, Some(single));
+}
+
 fn png_asset(d: &mut Document, data: &[u8]) -> AssetId {
     let aid = AssetId(d.alloc());
     let a =

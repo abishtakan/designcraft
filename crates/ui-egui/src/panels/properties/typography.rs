@@ -543,10 +543,16 @@ fn caption_cell(ui: &mut Ui, text: &str, width: f32) {
 }
 
 /// Whether `composer` (a paragraph's `composer` attribute) is a single-line composer, and the
-/// paragraph and single-line composers of its kind (Japanese or not), for the composer choice.
+/// paragraph and single-line composers of its family, for the composer choice.
 pub(crate) fn composer_choice(composer: Option<&str>) -> (bool, [&'static str; 2]) {
-    let single = matches!(composer, Some("singleLine" | "japaneseSingleLine"));
-    let kind = if composer.is_some_and(|c| c.starts_with("japanese")) { ["japanese", "japaneseSingleLine"] } else { ["paragraph", "singleLine"] };
+    let single = matches!(composer, Some("singleLine" | "japaneseSingleLine" | "worldReadySingleLine"));
+    let kind = if composer.is_some_and(|c| c.starts_with("japanese")) {
+        ["japanese", "japaneseSingleLine"]
+    } else if composer.is_some_and(|c| c.starts_with("worldReady")) {
+        ["worldReady", "worldReadySingleLine"]
+    } else {
+        ["paragraph", "singleLine"]
+    };
     (single, kind)
 }
 

@@ -6360,7 +6360,7 @@ fn justification(lang: &str, ui: &mut egui::Ui, d: &mut Dialog, prefix: &str, cu
         }
         crate::rtl::label(ui, crate::i18n::tr(lang, "Composer:"));
         let composer = cur(d, "composer");
-        // Mixed (null) selects neither; a Japanese composer keeps its kind.
+        // Mixed (null) selects neither; switching modes keeps the imported composer family.
         let (single, [paragraph, single_line]) = crate::panels::properties::composer_choice(composer.as_str());
         let known = !composer.is_null();
         if ui.selectable_label(known && !single, crate::rtl::widget(ui, crate::i18n::tr(lang, "Paragraph Composer"))).clicked() {
