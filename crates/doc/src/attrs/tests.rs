@@ -1,5 +1,6 @@
 use super::*;
 
+/// World-Ready variants keep their serialized identity and line-breaking mode.
 #[test]
 fn world_ready_composers_keep_their_breaking_mode_and_json_identity() {
     for (name, single) in [("worldReady", false), ("worldReadySingleLine", true)] {

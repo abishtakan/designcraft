@@ -1,5 +1,6 @@
 use super::*;
 
+/// Synthetic Tamil text with inherited styles and a local override in either XML representation.
 fn fixture(composer: &str, property: bool) -> Vec<u8> {
     let (attr, prop) = if property {
         (String::new(), format!(r#"<Composer type="string">$ID/{composer}</Composer>"#))
@@ -53,6 +54,7 @@ fn world_ready_composer_identifiers_survive_idml_export() {
     }
 }
 
+/// Import/export preserves style inheritance, explicit overrides and Tamil story text.
 #[test]
 fn world_ready_composer_styles_inheritance_and_overrides_round_trip() {
     use designcraft_doc::Composer;

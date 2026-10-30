@@ -349,12 +349,12 @@ fn paragraph_panel_menu(app: &mut DesignApp, ui: &mut Ui, p: &Value) {
     };
     let mut attrs = None;
     let mut command = None;
-    let (single, [paragraph, single_line]) = composer_choice(p["composer"].as_str());
+    let (single, _) = composer_choice(p["composer"].as_str());
     if item(ui, "Paragraph Composer", Some(!single), true) {
-        attrs = Some(json!({"composer": paragraph}));
+        attrs = Some(json!({"composerMode": "paragraph"}));
     }
     if item(ui, "Single-line Composer", Some(single), true) {
-        attrs = Some(json!({"composer": single_line}));
+        attrs = Some(json!({"composerMode": "singleLine"}));
     }
     ui.separator();
     let grid = p["gridAlign"].as_str().unwrap_or("none");

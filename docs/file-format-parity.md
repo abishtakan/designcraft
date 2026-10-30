@@ -40,7 +40,8 @@ layer survive interchange; literal XML and round-trip tests are in
 IDML retains Adobe World-Ready paragraph and single-line composer identities in paragraph styles
 and local overrides (#2032), including inherited styles, `$ID/` names and XML property elements.
 Native saves retain those identities too; switching paragraph versus single-line composition
-keeps the imported composer family. Synthetic regressions inspect the exported XML as well as
+keeps each selected paragraph's composer family, including mixed selections in the Paragraph
+panel and Justification dialog. Synthetic regressions inspect the exported XML as well as
 reimporting it. This preserves the composer InDesign uses on reopening; DesignCraft continues
 to use its own shaping and line breaking, without Adobe's legacy shaping engine.
 

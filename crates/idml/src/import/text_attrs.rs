@@ -441,6 +441,7 @@ pub(super) fn ace_char(v: &str) -> Option<char> {
 }
 
 /// `HL Composer` and `HL Single`, their World-Ready (`… Optyca`) and Japanese (`… J`) forms.
+/// Decode the vendor composer identifier without dropping its family or line-breaking mode.
 fn composer_in(name: &str) -> designcraft_doc::Composer {
     use designcraft_doc::Composer as C;
     let name = name.trim().trim_start_matches("$ID/");

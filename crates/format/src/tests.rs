@@ -3,6 +3,7 @@ use designcraft_doc::build::NewDocument;
 use designcraft_doc::geom::Rect;
 use designcraft_doc::{Asset, ParaFormat, SpreadRef};
 
+/// Native saves retain a World-Ready style and a distinct local single-line override.
 #[test]
 fn world_ready_composers_survive_native_save_and_reopen() {
     use designcraft_doc::{Composer, ParagraphStyle, Story, StoryId};
